@@ -20,7 +20,7 @@ jobs:
       contents: write
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name : env_vars
         run:
           echo 環境変数のメモ
@@ -30,6 +30,7 @@ jobs:
         shell: bash
         run : |
           php -v
+          composer update
           composer install  -q --no-ansi --no-interaction --no-progress
       - name : add env
         shell: bash
