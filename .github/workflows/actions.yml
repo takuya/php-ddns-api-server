@@ -1,0 +1,64 @@
+name: phpunit
+
+on:
+  push:
+    branch:
+      - master
+    paths:
+      - 'app/**'
+      - 'cf-dns/**'
+      - 'helpers/**'
+      - 'bootstrap/**'
+      - 'tests/**'
+      - '.github/workflows/actions.yml'
+  schedule:
+    - cron:  '0 11 */10 * *'
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name : env_vars
+        run:
+          echo 環境変数のメモ
+          echo expected variables
+          echo APP_TOKEN=${{ secrets.APP_TOKEN }}
+      - name : composer install
+        shell: bash
+        run : |
+          php -v
+          composer install  -q --no-ansi --no-interaction --no-progress
+      - name : add env
+        shell: bash
+        run : |
+          cat <<EOF > .env
+          APP_NAME=Lumen
+          APP_ENV=local
+          APP_KEY=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          APP_TIMEZONE=Asia/Tokyo
+          APP_LOCALE=ja
+          ##
+          APP_CF_TOKEN_CACHE_ENABLED=true
+          APP_TOKEN=${{ secrets.APP_TOKEN }}
+          ##
+          CF_TOKEN_PATH=storage/credentials/cloudflare_token.json.enc
+          EOF;
+      - name : UnitTest
+        shell: bash
+        run : |
+          vendor/bin/phpunit
+      - name : Write a log.
+        shell: bash
+        run : |
+          date -I > last-tested.txt
+      - name: push updated lists
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: update tested date.
+          file_pattern: last-tested.txt
+          create_branch: false
