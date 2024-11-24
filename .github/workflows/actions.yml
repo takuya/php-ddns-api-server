@@ -48,7 +48,8 @@ jobs:
           APP_TOKEN=${{ secrets.APP_TOKEN }}
           ##
           CF_TOKEN_PATH=storage/credentials/cloudflare_token.json.enc
-          EOF;
+          EOF
+          ls -l .env
       - name : UnitTest
         shell: bash
         run : |
