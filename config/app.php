@@ -11,4 +11,5 @@ return [
   "cipher"          => "AES-256-CBC",
   //
   'token'=> env('APP_TOKEN'),
+  'cf_token_cache_enabled'=>env('APP_CF_TOKEN_CACHE_ENABLED'),
 ];

@@ -32,8 +32,8 @@ class DDNS_UPDATE_Test extends TestCase {
   
   public function test_ddns_update_api() {
     $token = json_decode(app(CloudflareTokenStore::class), JSON_OBJECT_AS_ARRAY);
-    $domain = array_keys($token)[0];
-    $api_token = $token[$domain];
+    $domain = $token[0]['domain'];
+    $api_token = $token[0]['key'];
     // setup
     $name = Str::lower(Str::random(5))."-phpunit.{$domain}";
     $cf = new CloudflareDNS($api_token);

@@ -34,12 +34,21 @@ $app->singleton(
   App\Exceptions\Handler::class);
 $app->singleton(CloudflareTokenStore::class,function($app){
   $token_path = config('cloudflare.token_path');
-  $cache_path= base_path('storage/token.cache.json');
-  if (!file_exists($cache_path)){
-    $str = openssl_equivalent_decrypt($token_path, config('app.token'));
-    file_put_contents($cache_path,$str);
+  if (str_ends_with($token_path,'.enc')){
+    if (config('app.cf_token_cache_enabled')){
+      $cache_path= base_path('storage/token.cache.json');
+      if (!file_exists($cache_path)){
+        $str = openssl_equivalent_decrypt($token_path, config('app.token'));
+        file_put_contents($cache_path,$str);
+      }
+      return new CloudflareTokenStore(file_get_contents($cache_path));
+    }else{
+      return new CloudflareTokenStore(openssl_equivalent_decrypt($token_path, config('app.token')));
+    }
+    
   }
-  return new CloudflareTokenStore(file_get_contents($cache_path));
+  return new CloudflareTokenStore(file_get_contents($token_path));
+  
 });
 // $app->singleton(
 //     Illuminate\Contracts\Console\Kernel::class,
